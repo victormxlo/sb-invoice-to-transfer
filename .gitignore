@@ -23,6 +23,10 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Build
+bin/
+obj/
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json
@@ -52,3 +56,6 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Visual Studio
+.vs/
