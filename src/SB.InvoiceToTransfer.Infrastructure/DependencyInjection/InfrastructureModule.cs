@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SB.InvoiceToTransfer.Application.Interfaces.Repositories;
+using SB.InvoiceToTransfer.Infrastructure.Persistence;
 
 namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
 {
@@ -14,6 +17,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 options.UseSqlite(connectionString);
             });
+
+            services.AddScoped<IInvoiceRepository, IInvoiceRepository>();
+
             return services;
         }
     }
