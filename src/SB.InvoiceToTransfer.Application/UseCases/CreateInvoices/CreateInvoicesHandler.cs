@@ -35,6 +35,7 @@ namespace SB.InvoiceToTransfer.Application.UseCases.CreateInvoices
                 var name = faker.Name.FullName();
                 var taxId = faker.Person.Cpf();
                 var amount = random.Next(1000, 10000);
+                var email = faker.Person.Email;
                 var dueDate = DateTime.UtcNow.AddDays(3);
 
                 var externalId = await _starkBankClient.CreateInvoiceAsync(
@@ -44,7 +45,7 @@ namespace SB.InvoiceToTransfer.Application.UseCases.CreateInvoices
                     dueDate,
                     cancellationToken);
 
-                var invoice = new Invoice(externalId, amount);
+                var invoice = new Invoice(externalId, name, amount, taxId, email);
 
                 await _invoiceRepository.AddAsync(invoice, cancellationToken);
 

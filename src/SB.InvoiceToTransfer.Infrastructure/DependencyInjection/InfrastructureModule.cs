@@ -9,6 +9,11 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            services.AddDbContext<InvoiceToTransferDbContext>(options =>
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                options.UseSqlite(connectionString);
+            });
             return services;
         }
     }
