@@ -8,7 +8,7 @@ namespace SB.InvoiceToTransfer.Domain
         public string ExternalId { get; private set; }
         public string RecipientName { get; private set; }
         public decimal Amount { get; private set; }
-        public decimal AmountPaid { get; private set; }
+        public decimal? AmountPaid { get; private set; }
         public string TaxId { get; private set; }
         public string Email { get; private set; }
         public InvoiceStatus Status { get; private set; }
