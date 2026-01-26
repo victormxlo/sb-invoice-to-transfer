@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SB.InvoiceToTransfer.Application.Abstractions.External;
 using SB.InvoiceToTransfer.Application.Interfaces.External;
@@ -10,17 +11,19 @@ namespace SB.InvoiceToTransfer.UnitTests.UseCases.CreateInvoices
 {
     public class CreateInvoicesHandlerTests
     {
-        private readonly Mock<IStarkBankClient> _starkBankClientMock;
         private readonly Mock<IInvoiceRepository> _invoiceRepositoryMock;
+        private readonly Mock<IStarkBankClient> _starkBankClientMock;
+        private readonly Mock<ILogger<CreateInvoicesHandler>> _logger;
         private readonly CreateInvoicesHandler _handler;
 
         public CreateInvoicesHandlerTests()
         {
-            _starkBankClientMock = new Mock<IStarkBankClient>();
             _invoiceRepositoryMock = new Mock<IInvoiceRepository>();
+            _starkBankClientMock = new Mock<IStarkBankClient>();
+            _logger = new Mock<ILogger<CreateInvoicesHandler>>();
 
             _handler = new CreateInvoicesHandler(
-                _starkBankClientMock.Object, _invoiceRepositoryMock.Object);
+                _invoiceRepositoryMock.Object, _starkBankClientMock.Object, _logger.Object);
         }
 
         [Fact]

@@ -8,5 +8,8 @@ namespace SB.InvoiceToTransfer.Application.Interfaces.External
         Task<StarkBankOperationResult<IEnumerable<string>>> CreateInvoicesAsync(
             IReadOnlyCollection<Invoice> invoices,
             CancellationToken cancellationToken);
+
+        Task<StarkBankOperationResult<string>> CreateTransferAsync(long amount,
+            CancellationToken cancellationToken);
     }
 }

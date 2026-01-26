@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SB.InvoiceToTransfer.Application.Abstractions.External;
 using SB.InvoiceToTransfer.Application.Interfaces.External;
-using SB.InvoiceToTransfer.Infrastructure.Configuration;
 using StarkBank;
 using StarkBank.Error;
 
@@ -10,15 +10,22 @@ namespace SB.InvoiceToTransfer.Infrastructure.External.Banking
     public sealed class StarkBankClient : IStarkBankClient
     {
         private readonly ILogger<StarkBankClient> _logger;
+        private readonly TransferBankAccountOptions _bankAccount;
 
-        public StarkBankClient(ILogger<StarkBankClient> logger)
+        public StarkBankClient(
+            ILogger<StarkBankClient> logger,
+            IOptions<TransferBankAccountOptions> transferBankAccountOptions,
+            IOptions<StarkBankProjectOptions> starkBankProjectOptions)
         {
             _logger = logger;
+            _bankAccount = transferBankAccountOptions.Value;
+
+            var options = starkBankProjectOptions.Value;
 
             var project = new Project(
-               environment: Secrets.Require("SB_ENVIRONMENT"),
-               id: Secrets.Require("SB_PROJECT_ID"),
-               privateKey: Secrets.Require("SB_PRIVATE_KEY")
+               environment: options.Environment,
+               privateKey: options.PrivateKey,
+               id: options.ProjectId
             );
 
             StarkBank.Settings.User = project;
@@ -79,6 +86,55 @@ namespace SB.InvoiceToTransfer.Infrastructure.External.Banking
                 return StarkBankOperationResult<IEnumerable<string>>.Fail(
                     "UNEXPECTED_ERROR",
                     "Unexpected error while creating invoices");
+            }
+        }
+
+        public async Task<StarkBankOperationResult<string>> CreateTransferAsync(long amount, CancellationToken cancellationToken)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Creating transfer of {Amount} to Stark Bank account",
+                    amount);
+
+                var transfer = new Transfer(
+                    amount: amount,
+                    bankCode: _bankAccount.BankCode,
+                    branchCode: _bankAccount.Branch,
+                    accountNumber: _bankAccount.Account,
+                    taxID: _bankAccount.TaxId,
+                    name: _bankAccount.Name,
+                    accountType: _bankAccount.AccountType);
+
+                var created = await Task.Run(
+                    () => Transfer.Create(
+                        new List<Transfer> { transfer }), cancellationToken);
+
+                var transferId = created.First().ID;
+
+                _logger.LogInformation(
+                    "Transfer created successfully. Id: {TransferId}",
+                    transferId);
+
+                return StarkBankOperationResult<string>.Ok(transferId);
+            }
+            catch (StarkBankError ex)
+            {
+                _logger.LogError(ex,
+                    "Stark Bank error while creating transfer");
+
+                return StarkBankOperationResult<string>.Fail(
+                    "STARK_BANK_API_ERROR",
+                    ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Unexpected error while creating transfer");
+
+                return StarkBankOperationResult<string>.Fail(
+                    "UNEXPECTED_ERROR",
+                    "Unexpected error while creating transfer");
             }
         }
     }

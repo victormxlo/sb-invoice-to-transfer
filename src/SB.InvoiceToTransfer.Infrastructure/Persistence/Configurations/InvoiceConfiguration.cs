@@ -33,6 +33,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.Persistence.Configurations
                 .HasMaxLength(20)
                 .IsRequired();
 
+            builder.Property(x => x.TransferId)
+                .HasMaxLength(300);
+
             builder.Property(x => x.Email)
                 .HasMaxLength(200)
                 .IsRequired();

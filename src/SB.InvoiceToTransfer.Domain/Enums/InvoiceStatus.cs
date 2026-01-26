@@ -3,7 +3,7 @@
     public enum InvoiceStatus
     {
         Created = 1,
-        Paid = 2,
-        Transferred = 3
+        Processing = 2,
+        Paid = 3
     }
 }
