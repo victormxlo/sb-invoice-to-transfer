@@ -12,22 +12,28 @@ namespace SB.InvoiceToTransfer.Domain
         public string TaxId { get; private set; }
         public string Email { get; private set; }
         public InvoiceStatus Status { get; private set; }
+        public DateTime DueDate { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
         public DateTime? PaidAt { get; private set; }
 
         public Invoice(
-            string externalId, string recipientName, decimal amount, string taxId, string email)
+            string recipientName, decimal amount,
+            string taxId, string email,
+            DateTime dueDate)
         {
             Id = Guid.NewGuid();
-            ExternalId = externalId;
             RecipientName = recipientName;
             Amount = amount;
             TaxId = taxId;
             Email = email;
+            DueDate = dueDate;
             Status = InvoiceStatus.Created;
             CreatedAt = DateTime.UtcNow;
         }
+
+        public void AssignExternalId(string externalId)
+            => ExternalId = externalId;
 
         public void MarkAsPaid(decimal amountPaid)
         {

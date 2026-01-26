@@ -32,6 +32,12 @@ namespace SB.InvoiceToTransfer.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.ExternalId == externalId, cancellationToken);
         }
 
+        public async Task<bool> ExistsByExternalIdAsync(string externalId, CancellationToken cancellationToken)
+        {
+            return await _context.Invoices
+                .AnyAsync(x => x.ExternalId == externalId, cancellationToken);
+        }
+
         public async Task UpdateAsync(Invoice invoice, CancellationToken cancellationToken)
         {
             _context.Invoices.Update(invoice);

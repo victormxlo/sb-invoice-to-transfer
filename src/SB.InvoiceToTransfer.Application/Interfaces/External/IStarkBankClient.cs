@@ -1,12 +1,12 @@
-﻿namespace SB.InvoiceToTransfer.Application.Interfaces.External
+﻿using SB.InvoiceToTransfer.Application.Abstractions.External;
+using SB.InvoiceToTransfer.Domain;
+
+namespace SB.InvoiceToTransfer.Application.Interfaces.External
 {
     public interface IStarkBankClient
     {
-        Task<string> CreateInvoiceAsync(
-            string name,
-            string taxId,
-            decimal amount,
-            DateTime dueDate,
+        Task<StarkBankOperationResult<IEnumerable<string>>> CreateInvoicesAsync(
+            IReadOnlyCollection<Invoice> invoices,
             CancellationToken cancellationToken);
     }
 }

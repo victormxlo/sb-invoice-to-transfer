@@ -8,6 +8,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.12" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.12" />
+    <PackageReference Include="StarkBank" Version="2.21.0" />
   </ItemGroup>
 
   <ItemGroup>

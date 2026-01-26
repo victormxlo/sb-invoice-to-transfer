@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using SB.InvoiceToTransfer.Infrastructure.Configuration;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Persistence
 {
@@ -9,9 +10,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Persistence
         {
             var optionsBuilder = new DbContextOptionsBuilder<InvoiceToTransferDbContext>();
 
-            optionsBuilder.UseSqlite(
-                "Data Source=invoice_to_transfer.db"
-            );
+            optionsBuilder.UseSqlite(Secrets.Require("SB_DB_CONNECTION"));
 
             return new InvoiceToTransferDbContext(optionsBuilder.Options);
         }

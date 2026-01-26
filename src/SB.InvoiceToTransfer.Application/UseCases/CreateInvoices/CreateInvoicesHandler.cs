@@ -24,38 +24,53 @@ namespace SB.InvoiceToTransfer.Application.UseCases.CreateInvoices
             CreateInvoicesCommand request, CancellationToken cancellationToken)
         {
             var random = new Random();
-            var quantity = random.Next(8, 13);
-
-            var externalIds = new List<string>();
-
             var faker = new Faker("pt_BR");
 
-            for (int i = 0; i < quantity; i++)
+            var quantity = random.Next(8, 13);
+
+            var invoices = Enumerable.Range(0, quantity)
+                .Select(_ => new Invoice(
+                    recipientName: faker.Name.FullName(),
+                    amount: random.Next(1000, 10000),
+                    taxId: faker.Person.Cpf(),
+                    email: faker.Person.Email,
+                    dueDate: DateTime.UtcNow.AddDays(3)))
+                .ToList();
+
+            var result = await _starkBankClient.CreateInvoicesAsync(invoices, cancellationToken);
+
+            if (!result.Success)
             {
-                var name = faker.Name.FullName();
-                var taxId = faker.Person.Cpf();
-                var amount = random.Next(1000, 10000);
-                var email = faker.Person.Email;
-                var dueDate = DateTime.UtcNow.AddDays(3);
+                return new CreateInvoicesResult(
+                    Quantity: 0,
+                    ExternalInvoiceIds: Array.Empty<string>(),
+                    ExecutedAt: DateTime.UtcNow
+                );
+            }
 
-                var externalId = await _starkBankClient.CreateInvoiceAsync(
-                    name,
-                    taxId,
-                    amount,
-                    dueDate,
-                    cancellationToken);
+            var externalIds = result.Data!.ToList();
 
-                var invoice = new Invoice(externalId, name, amount, taxId, email);
+            if (externalIds.Count != invoices.Count)
+            {
+                throw new InvalidOperationException(
+                    $"Mismatch between invoices ({invoices.Count}) and external IDs ({externalIds.Count}) returned by StarkBankClient.");
+            }
 
-                await _invoiceRepository.AddAsync(invoice, cancellationToken);
+            for (int i = 0; i < invoices.Count; i++)
+            {
+                invoices[i].AssignExternalId(externalIds[i]);
 
-                externalIds.Add(externalId);
+                // Protection against local reprocessing
+                if (!await _invoiceRepository.ExistsByExternalIdAsync(externalIds[i], cancellationToken))
+                {
+                    await _invoiceRepository.AddAsync(invoices[i], cancellationToken);
+                }
             }
 
             return new CreateInvoicesResult(
-                quantity,
-                externalIds,
-                DateTime.UtcNow
+                Quantity: invoices.Count,
+                ExternalInvoiceIds: externalIds,
+                ExecutedAt: DateTime.UtcNow
             );
         }
     }
