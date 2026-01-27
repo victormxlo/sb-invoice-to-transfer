@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SB.InvoiceToTransfer.Domain;
+using SB.InvoiceToTransfer.Infrastructure.Persistence.Entities;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Persistence
 {
     public class InvoiceToTransferDbContext : DbContext
     {
         public DbSet<Invoice> Invoices => Set<Invoice>();
+        public DbSet<InvoiceSchedulerStateEntity> InvoiceSchedulerStates => Set<InvoiceSchedulerStateEntity>();
 
         public InvoiceToTransferDbContext(
             DbContextOptions<InvoiceToTransferDbContext> options) : base(options) { }

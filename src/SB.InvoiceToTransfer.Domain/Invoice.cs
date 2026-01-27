@@ -18,6 +18,8 @@ namespace SB.InvoiceToTransfer.Domain
         public DateTime UpdatedAt { get; private set; }
         public DateTime? PaidAt { get; private set; }
 
+        private Invoice() { }
+
         public Invoice(
             string recipientName, decimal amount,
             string taxId, string email,

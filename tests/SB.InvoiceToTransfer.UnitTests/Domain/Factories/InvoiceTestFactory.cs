@@ -1,6 +1,6 @@
 ﻿using SB.InvoiceToTransfer.Domain;
 
-namespace SB.InvoiceToTransfer.UnitTests.Factories
+namespace SB.InvoiceToTransfer.UnitTests.Domain.Factories
 {
     public static class InvoiceTestFactory
     {

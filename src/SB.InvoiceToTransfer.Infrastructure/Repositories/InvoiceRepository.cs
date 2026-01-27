@@ -5,7 +5,7 @@ using SB.InvoiceToTransfer.Infrastructure.Persistence;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Repositories
 {
-    public class InvoiceRepository : IInvoiceRepository
+    public sealed class InvoiceRepository : IInvoiceRepository
     {
         private readonly InvoiceToTransferDbContext _context;
 

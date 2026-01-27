@@ -4,7 +4,7 @@ using SB.InvoiceToTransfer.Application.Interfaces.External;
 using SB.InvoiceToTransfer.Application.Interfaces.Repositories;
 using SB.InvoiceToTransfer.Application.UseCases.ProcessInvoiceCredit;
 
-namespace SB.InvoiceToTransfer.UnitTests.UseCases.ProcessInvoiceCredit
+namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.ProcessInvoiceCredit
 {
     public abstract class ProcessInvoiceCreditHandlerTestsBase
     {

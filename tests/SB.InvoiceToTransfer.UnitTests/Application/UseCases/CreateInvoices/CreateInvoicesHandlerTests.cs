@@ -7,7 +7,7 @@ using SB.InvoiceToTransfer.Application.Interfaces.Repositories;
 using SB.InvoiceToTransfer.Application.UseCases.CreateInvoices;
 using SB.InvoiceToTransfer.Domain;
 
-namespace SB.InvoiceToTransfer.UnitTests.UseCases.CreateInvoices
+namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.CreateInvoices
 {
     public class CreateInvoicesHandlerTests
     {

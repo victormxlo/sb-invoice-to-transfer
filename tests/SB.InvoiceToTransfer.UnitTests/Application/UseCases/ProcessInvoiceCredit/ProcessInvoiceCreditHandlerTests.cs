@@ -4,9 +4,9 @@ using SB.InvoiceToTransfer.Application.Abstractions.External;
 using SB.InvoiceToTransfer.Application.UseCases.ProcessInvoiceCredit;
 using SB.InvoiceToTransfer.Domain;
 using SB.InvoiceToTransfer.Domain.Enums;
-using SB.InvoiceToTransfer.UnitTests.Factories;
+using SB.InvoiceToTransfer.UnitTests.Domain.Factories;
 
-namespace SB.InvoiceToTransfer.UnitTests.UseCases.ProcessInvoiceCredit
+namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.ProcessInvoiceCredit
 {
     public class ProcessInvoiceCreditHandlerTests
         : ProcessInvoiceCreditHandlerTestsBase

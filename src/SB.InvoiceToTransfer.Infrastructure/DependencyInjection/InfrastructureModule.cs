@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Mapster;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SB.InvoiceToTransfer.Application.Interfaces.External;
 using SB.InvoiceToTransfer.Application.Interfaces.Repositories;
+using SB.InvoiceToTransfer.Infrastructure.Background;
 using SB.InvoiceToTransfer.Infrastructure.Configuration;
 using SB.InvoiceToTransfer.Infrastructure.External.Banking;
+using SB.InvoiceToTransfer.Infrastructure.Mappings;
 using SB.InvoiceToTransfer.Infrastructure.Persistence;
 using SB.InvoiceToTransfer.Infrastructure.Repositories;
 
@@ -20,6 +23,8 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
             AddOptions(services, configuration);
             AddExternalClients(services);
             AddRepositories(services);
+            AddServices(services);
+            AddMappings();
 
             return services;
         }
@@ -36,6 +41,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
         public static void AddOptions(
             IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<InvoiceSchedulerOptions>(
+                configuration.GetSection("InvoiceScheduler"));
+
             services
                 .AddOptions<TransferBankAccountOptions>()
                 .Bind(configuration.GetSection("StarkBank:TransferAccount"))
@@ -60,6 +68,17 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
         private static void AddRepositories(IServiceCollection services)
         {
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        }
+
+        private static void AddServices(IServiceCollection services)
+        {
+            services.AddHostedService<InvoiceSchedulerService>();
+        }
+
+        private static void AddMappings()
+        {
+            TypeAdapterConfig.GlobalSettings.Scan(
+                typeof(InvoiceSchedulerStateMapping).Assembly);
         }
     }
 }
