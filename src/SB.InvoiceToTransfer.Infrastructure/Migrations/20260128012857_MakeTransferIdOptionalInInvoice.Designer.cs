@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SB.InvoiceToTransfer.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using SB.InvoiceToTransfer.Infrastructure.Persistence;
 namespace SB.InvoiceToTransfer.Infrastructure.Migrations
 {
     [DbContext(typeof(InvoiceToTransferDbContext))]
-    partial class InvoiceToTransferDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260128012857_MakeTransferIdOptionalInInvoice")]
+    partial class MakeTransferIdOptionalInInvoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.12");
@@ -64,7 +67,6 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TransferId")
-                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");
 

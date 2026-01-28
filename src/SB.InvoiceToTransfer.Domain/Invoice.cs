@@ -11,7 +11,7 @@ namespace SB.InvoiceToTransfer.Domain
         public decimal Amount { get; private set; }
         public decimal? Fee { get; private set; }
         public decimal? AmountPaid { get; private set; }
-        public string TransferId { get; private set; }
+        public string? TransferId { get; private set; }
         public string Email { get; private set; }
         public InvoiceStatus Status { get; private set; }
         public DateTime DueDate { get; private set; }

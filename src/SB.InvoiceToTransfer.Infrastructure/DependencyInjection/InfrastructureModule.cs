@@ -34,7 +34,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
         {
             services.AddDbContext<InvoiceToTransferDbContext>(options =>
             {
-                options.UseSqlite(Secrets.Require("SB_DB_CONNECTION"));
+                options.UseSqlite($"Data Source={Secrets.Require("SB_DB_CONNECTION")}");
             });
         }
 
@@ -43,6 +43,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
         {
             services.Configure<InvoiceProcessingJobOptions>(
                 configuration.GetSection("InvoiceProcessingJob"));
+
+            services.Configure<InvoiceIssuanceSchedulerOptions>(
+                configuration.GetSection("InvoiceIssuanceScheduler"));
 
             services
                 .AddOptions<TransferBankAccountOptions>()
@@ -68,10 +71,12 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
         private static void AddRepositories(IServiceCollection services)
         {
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            services.AddScoped<IInvoiceProcessingJobStateRepository, InvoiceProcessingJobStateRepository>();
         }
 
         private static void AddServices(IServiceCollection services)
         {
+            services.AddHostedService<InvoiceIssuanceSchedulerService>();
             services.AddHostedService<InvoiceProcessingJob>();
         }
 

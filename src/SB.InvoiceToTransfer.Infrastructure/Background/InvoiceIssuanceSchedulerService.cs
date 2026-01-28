@@ -3,23 +3,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SB.InvoiceToTransfer.Application.UseCases.RunInvoiceProcessingJob;
+using SB.InvoiceToTransfer.Application.UseCases.CreateInvoices;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Background
 {
-    public sealed class InvoiceProcessingJob : BackgroundService
+    public sealed class InvoiceIssuanceSchedulerService : BackgroundService
     {
         // Warm-up
         private static readonly TimeSpan InitialDelay = TimeSpan.FromSeconds(5);
 
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<InvoiceProcessingJob> _logger;
+        private readonly ILogger<InvoiceIssuanceSchedulerService> _logger;
         private readonly TimeSpan _interval;
 
-        public InvoiceProcessingJob(
+        public InvoiceIssuanceSchedulerService(
             IServiceScopeFactory scopeFactory,
-            ILogger<InvoiceProcessingJob> logger,
-            IOptions<InvoiceProcessingJobOptions> options)
+            ILogger<InvoiceIssuanceSchedulerService> logger,
+            IOptions<InvoiceIssuanceSchedulerOptions> options)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
@@ -28,14 +28,14 @@ namespace SB.InvoiceToTransfer.Infrastructure.Background
             if (_interval <= TimeSpan.Zero)
             {
                 throw new ArgumentException(
-                    "InvoiceProcessingJobOptions.Interval must be greater than zero");
+                    "InvoiceIssuanceSchedulerOptions.Interval must be greater than zero");
             }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation(
-                "Invoice processing job started. Interval: {Interval}",
+                "Invoice Issuance Scheduler started. Interval: {Interval}",
                 _interval);
 
             await Task.Delay(InitialDelay, stoppingToken);
@@ -48,40 +48,33 @@ namespace SB.InvoiceToTransfer.Infrastructure.Background
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
                     _logger.LogInformation(
-                        "Triggering invoice processing execution");
+                        "Triggering invoice issuance execution");
 
                     await mediator.Send(
-                        new RunInvoiceProcessingJobCommand(),
+                        new CreateInvoicesCommand(),
                         stoppingToken);
 
                     _logger.LogInformation(
-                        "Invoice processing execution finished");
+                        "Invoice issuance completed successfully");
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
                     _logger.LogInformation(
-                        "Invoice processing job cancellation requested");
+                        "Invoice issuance Scheduler cancellation requested");
                     break;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
                         ex,
-                        "Unexpected error while executing invoice processing");
+                        "Unexpected error while issuing invoices");
                 }
 
-                try
-                {
-                    await Task.Delay(_interval, stoppingToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
+                await Task.Delay(_interval, stoppingToken);
             }
 
             _logger.LogInformation(
-                "Invoice processing job stopped");
+                "Invoice issuance Scheduler stopped");
         }
     }
 }

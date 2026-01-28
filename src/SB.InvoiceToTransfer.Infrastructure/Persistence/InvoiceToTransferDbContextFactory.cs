@@ -10,7 +10,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Persistence
         {
             var optionsBuilder = new DbContextOptionsBuilder<InvoiceToTransferDbContext>();
 
-            optionsBuilder.UseSqlite(Secrets.Require("SB_DB_CONNECTION"));
+            optionsBuilder.UseSqlite($"Data Source={Secrets.Require("SB_DB_CONNECTION")}");
 
             return new InvoiceToTransferDbContext(optionsBuilder.Options);
         }
