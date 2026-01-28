@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -27,7 +26,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
                 defaultValue: "");
 
             migrationBuilder.CreateTable(
-                name: "InvoiceSchedulerStates",
+                name: "InvoiceProcessingJobStates",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -36,12 +35,12 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InvoiceSchedulerStates", x => x.Id);
+                    table.PrimaryKey("PK_InvoiceProcessingJobStates", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_InvoiceSchedulerStates_IsActive",
-                table: "InvoiceSchedulerStates",
+                name: "IX_InvoiceProcessingJobStates_IsActive",
+                table: "InvoiceProcessingJobStates",
                 column: "IsActive",
                 unique: true,
                 filter: "IsActive = 1");
@@ -51,7 +50,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "InvoiceSchedulerStates");
+                name: "InvoiceProcessingJobStates");
 
             migrationBuilder.DropColumn(
                 name: "DueDate",

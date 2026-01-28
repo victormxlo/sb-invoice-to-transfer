@@ -44,6 +44,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("Fee")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("TEXT");
 
@@ -73,7 +76,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
                     b.ToTable("Invoices", (string)null);
                 });
 
-            modelBuilder.Entity("SB.InvoiceToTransfer.Infrastructure.Persistence.Entities.InvoiceSchedulerStateEntity", b =>
+            modelBuilder.Entity("SB.InvoiceToTransfer.Infrastructure.Persistence.Entities.InvoiceProcessingJobStateEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
@@ -90,7 +93,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("IsActive = 1");
 
-                    b.ToTable("InvoiceSchedulerStates", (string)null);
+                    b.ToTable("InvoiceProcessingJobStates", (string)null);
                 });
 #pragma warning restore 612, 618
         }

@@ -26,6 +26,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Amount)
                 .IsRequired();
 
+            builder.Property(x => x.Fee)
+                .IsRequired(false);
+
             builder.Property(x => x.AmountPaid)
                 .IsRequired(false);
 

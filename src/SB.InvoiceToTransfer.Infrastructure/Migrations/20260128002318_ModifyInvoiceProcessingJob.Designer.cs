@@ -11,8 +11,8 @@ using SB.InvoiceToTransfer.Infrastructure.Persistence;
 namespace SB.InvoiceToTransfer.Infrastructure.Migrations
 {
     [DbContext(typeof(InvoiceToTransferDbContext))]
-    [Migration("20260127141501_AddSchedulerStateAndInvoiceImprovements")]
-    partial class AddSchedulerStateAndInvoiceImprovements
+    [Migration("20260128002318_ModifyInvoiceProcessingJob")]
+    partial class ModifyInvoiceProcessingJob
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.Migrations
                     b.Property<string>("ExternalId")
                         .IsRequired()
                         .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("Fee")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("PaidAt")

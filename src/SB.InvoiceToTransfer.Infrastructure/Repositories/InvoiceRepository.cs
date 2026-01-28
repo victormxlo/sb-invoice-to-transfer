@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SB.InvoiceToTransfer.Application.Interfaces.Repositories;
 using SB.InvoiceToTransfer.Domain;
+using SB.InvoiceToTransfer.Domain.Enums;
 using SB.InvoiceToTransfer.Infrastructure.Persistence;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Repositories
@@ -30,6 +31,12 @@ namespace SB.InvoiceToTransfer.Infrastructure.Repositories
         {
             return await _context.Invoices
                 .FirstOrDefaultAsync(x => x.ExternalId == externalId, cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<Invoice>> GetByStatusAsync(InvoiceStatus status, CancellationToken cancellationToken)
+        {
+            return await _context.Invoices
+                .Where(x => x.Status == status).ToListAsync(cancellationToken);
         }
 
         public async Task<bool> ExistsByExternalIdAsync(string externalId, CancellationToken cancellationToken)

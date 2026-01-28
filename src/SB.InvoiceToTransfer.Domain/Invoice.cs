@@ -7,9 +7,10 @@ namespace SB.InvoiceToTransfer.Domain
         public Guid Id { get; private set; }
         public string ExternalId { get; private set; }
         public string RecipientName { get; private set; }
-        public decimal Amount { get; private set; }
-        public decimal? AmountPaid { get; private set; }
         public string TaxId { get; private set; }
+        public decimal Amount { get; private set; }
+        public decimal? Fee { get; private set; }
+        public decimal? AmountPaid { get; private set; }
         public string TransferId { get; private set; }
         public string Email { get; private set; }
         public InvoiceStatus Status { get; private set; }
@@ -46,12 +47,13 @@ namespace SB.InvoiceToTransfer.Domain
             Status = InvoiceStatus.Processing;
         }
 
-        public void MarkAsPaid(decimal amountPaid, string transferId)
+        public void MarkAsPaid(decimal amountPaid, decimal fee, string transferId)
         {
             if (Status != InvoiceStatus.Processing)
                 throw new InvalidOperationException("Invoice is not processing.");
 
             AmountPaid = amountPaid;
+            Fee = fee;
             TransferId = transferId;
             Status = InvoiceStatus.Paid;
             UpdatedAt = DateTime.UtcNow;

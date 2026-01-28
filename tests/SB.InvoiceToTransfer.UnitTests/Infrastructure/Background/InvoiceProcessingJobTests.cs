@@ -3,22 +3,22 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using SB.InvoiceToTransfer.Application.UseCases.RunInvoiceScheduler;
+using SB.InvoiceToTransfer.Application.UseCases.RunInvoiceProcessingJob;
 using SB.InvoiceToTransfer.Infrastructure.Background;
 
 namespace SB.InvoiceToTransfer.UnitTests.Infrastructure.Background
 {
-    public class InvoiceSchedulerServiceTests
+    public class InvoiceProcessingJobTests
     {
         private readonly Mock<IMediator> _mediatorMock;
-        private readonly Mock<ILogger<InvoiceSchedulerService>> _loggerMock;
-        private readonly IOptions<InvoiceSchedulerOptions> _options;
+        private readonly Mock<ILogger<InvoiceProcessingJob>> _loggerMock;
+        private readonly IOptions<InvoiceProcessingJobOptions> _options;
 
-        public InvoiceSchedulerServiceTests()
+        public InvoiceProcessingJobTests()
         {
             _mediatorMock = new Mock<IMediator>();
-            _loggerMock = new Mock<ILogger<InvoiceSchedulerService>>();
-            _options = Options.Create(new InvoiceSchedulerOptions
+            _loggerMock = new Mock<ILogger<InvoiceProcessingJob>>();
+            _options = Options.Create(new InvoiceProcessingJobOptions
             {
                 Interval = TimeSpan.FromMilliseconds(50)
             });
@@ -29,14 +29,19 @@ namespace SB.InvoiceToTransfer.UnitTests.Infrastructure.Background
         {
             var tcs = new TaskCompletionSource();
             _mediatorMock
-                .Setup(m => m.Send(It.IsAny<RunInvoiceSchedulerCommand>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(
+                    It.IsAny<RunInvoiceProcessingJobCommand>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(() =>
                 {
                     tcs.TrySetResult();
-                    return Task.FromResult(Unit.Value);
+
+                    return Task.FromResult(
+                        RunInvoiceProcessingJobResult.Ok(processed: 1)
+                    );
                 });
 
-            var service = new InvoiceSchedulerService(_mediatorMock.Object, _options, _loggerMock.Object);
+            var service = new InvoiceProcessingJob(_mediatorMock.Object, _options, _loggerMock.Object);
 
             using var cts = new CancellationTokenSource();
 
@@ -48,7 +53,7 @@ namespace SB.InvoiceToTransfer.UnitTests.Infrastructure.Background
             await service.StopAsync(CancellationToken.None);
 
             _mediatorMock.Verify(
-                m => m.Send(It.IsAny<RunInvoiceSchedulerCommand>(), It.IsAny<CancellationToken>()),
+                m => m.Send(It.IsAny<RunInvoiceProcessingJobCommand>(), It.IsAny<CancellationToken>()),
                 Times.AtLeastOnce
             );
         }
@@ -56,11 +61,11 @@ namespace SB.InvoiceToTransfer.UnitTests.Infrastructure.Background
         [Fact]
         public async Task ExecuteAsync_ShouldNotThrow_WhenMediatorThrows()
         {
-            _mediatorMock.Setup(m => m.Send(It.IsAny<RunInvoiceSchedulerCommand>(), It.IsAny<CancellationToken>()))
+            _mediatorMock.Setup(m => m.Send(It.IsAny<RunInvoiceProcessingJobCommand>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Mediator failed"));
 
             using var cts = new CancellationTokenSource(200);
-            var service = new InvoiceSchedulerService(_mediatorMock.Object, _options, _loggerMock.Object);
+            var service = new InvoiceProcessingJob(_mediatorMock.Object, _options, _loggerMock.Object);
 
             Func<Task> act = async () =>
             {
@@ -77,7 +82,7 @@ namespace SB.InvoiceToTransfer.UnitTests.Infrastructure.Background
         {
             using var cts = new CancellationTokenSource();
             cts.Cancel();
-            var service = new InvoiceSchedulerService(_mediatorMock.Object, _options, _loggerMock.Object);
+            var service = new InvoiceProcessingJob(_mediatorMock.Object, _options, _loggerMock.Object);
 
             Func<Task> act = async () =>
             {
@@ -93,7 +98,7 @@ namespace SB.InvoiceToTransfer.UnitTests.Infrastructure.Background
 
             await act.Should().NotThrowAsync<Exception>();
             _mediatorMock.Verify(m => m.Send(
-                It.IsAny<RunInvoiceSchedulerCommand>(),
+                It.IsAny<RunInvoiceProcessingJobCommand>(),
                 It.IsAny<CancellationToken>()),
                 Times.Never);
         }

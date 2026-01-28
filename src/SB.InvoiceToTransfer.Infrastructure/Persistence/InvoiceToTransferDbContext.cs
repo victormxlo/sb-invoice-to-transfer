@@ -7,7 +7,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Persistence
     public class InvoiceToTransferDbContext : DbContext
     {
         public DbSet<Invoice> Invoices => Set<Invoice>();
-        public DbSet<InvoiceSchedulerStateEntity> InvoiceSchedulerStates => Set<InvoiceSchedulerStateEntity>();
+        public DbSet<InvoiceProcessingJobStateEntity> InvoiceProcessingJobStates => Set<InvoiceProcessingJobStateEntity>();
 
         public InvoiceToTransferDbContext(
             DbContextOptions<InvoiceToTransferDbContext> options) : base(options) { }

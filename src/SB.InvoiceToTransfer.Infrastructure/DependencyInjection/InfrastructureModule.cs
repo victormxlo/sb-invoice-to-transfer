@@ -41,8 +41,8 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
         public static void AddOptions(
             IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<InvoiceSchedulerOptions>(
-                configuration.GetSection("InvoiceScheduler"));
+            services.Configure<InvoiceProcessingJobOptions>(
+                configuration.GetSection("InvoiceProcessingJob"));
 
             services
                 .AddOptions<TransferBankAccountOptions>()
@@ -72,13 +72,13 @@ namespace SB.InvoiceToTransfer.Infrastructure.DependencyInjection
 
         private static void AddServices(IServiceCollection services)
         {
-            services.AddHostedService<InvoiceSchedulerService>();
+            services.AddHostedService<InvoiceProcessingJob>();
         }
 
         private static void AddMappings()
         {
             TypeAdapterConfig.GlobalSettings.Scan(
-                typeof(InvoiceSchedulerStateMapping).Assembly);
+                typeof(InvoiceProcessingJobStateMapping).Assembly);
         }
     }
 }

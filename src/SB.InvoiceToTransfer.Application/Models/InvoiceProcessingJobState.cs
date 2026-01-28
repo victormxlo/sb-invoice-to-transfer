@@ -1,12 +1,12 @@
 ﻿namespace SB.InvoiceToTransfer.Application.Models
 {
-    public sealed class InvoiceSchedulerState
+    public sealed class InvoiceProcessingJobState
     {
         public Guid Id { get; init; }
         public DateTime StartedAt { get; init; }
         public bool IsActive { get; private set; }
 
-        public InvoiceSchedulerState()
+        public InvoiceProcessingJobState()
         {
             Id = Guid.NewGuid();
             StartedAt = DateTime.UtcNow;

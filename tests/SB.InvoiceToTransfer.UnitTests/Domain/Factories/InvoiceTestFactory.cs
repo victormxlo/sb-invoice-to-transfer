@@ -23,7 +23,7 @@ namespace SB.InvoiceToTransfer.UnitTests.Domain.Factories
         {
             var invoice = Created();
             invoice.MarkAsProcessing();
-            invoice.MarkAsPaid(100, "tr_test");
+            invoice.MarkAsPaid(100, 10, "tr_test");
             return invoice;
         }
     }

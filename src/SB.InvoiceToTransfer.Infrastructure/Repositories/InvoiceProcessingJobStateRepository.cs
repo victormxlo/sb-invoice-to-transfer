@@ -7,32 +7,32 @@ using SB.InvoiceToTransfer.Infrastructure.Persistence.Entities;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Repositories
 {
-    public sealed class InvoiceSchedulerStateRepository : IInvoiceSchedulerStateRepository
+    public sealed class InvoiceProcessingJobStateRepository : IInvoiceProcessingJobStateRepository
     {
         private readonly InvoiceToTransferDbContext _context;
 
-        public InvoiceSchedulerStateRepository(InvoiceToTransferDbContext context)
+        public InvoiceProcessingJobStateRepository(InvoiceToTransferDbContext context)
         {
             _context = context;
         }
 
-        public async Task<InvoiceSchedulerState?> GetActiveAsync(
+        public async Task<InvoiceProcessingJobState?> GetActiveAsync(
             CancellationToken cancellationToken)
         {
-            return await _context.InvoiceSchedulerStates
+            return await _context.InvoiceProcessingJobStates
                 .AsNoTracking()
                 .Where(x => x.IsActive)
-                .ProjectToType<InvoiceSchedulerState>()
+                .ProjectToType<InvoiceProcessingJobState>()
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task AddAsync(
-            InvoiceSchedulerState state,
+            InvoiceProcessingJobState state,
             CancellationToken cancellationToken)
         {
-            var entity = state.Adapt<InvoiceSchedulerStateEntity>();
+            var entity = state.Adapt<InvoiceProcessingJobStateEntity>();
 
-            await _context.InvoiceSchedulerStates.AddAsync(
+            await _context.InvoiceProcessingJobStates.AddAsync(
                 entity,
                 cancellationToken);
 
@@ -40,10 +40,10 @@ namespace SB.InvoiceToTransfer.Infrastructure.Repositories
         }
 
         public async Task UpdateAsync(
-            InvoiceSchedulerState state,
+            InvoiceProcessingJobState state,
             CancellationToken cancellationToken)
         {
-            var entity = await _context.InvoiceSchedulerStates
+            var entity = await _context.InvoiceProcessingJobStates
                 .FirstAsync(
                     x => x.Id == state.Id,
                     cancellationToken);

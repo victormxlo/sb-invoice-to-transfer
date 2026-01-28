@@ -90,7 +90,7 @@ namespace SB.InvoiceToTransfer.Application.UseCases.ProcessInvoiceCredit
                     return ProcessInvoiceCreditResult.NotProcessed("Transfer failed");
                 }
 
-                invoice.MarkAsPaid(netAmount, transferResult.Data!);
+                invoice.MarkAsPaid(netAmount, request.Fee, transferResult.Data!);
 
                 await _invoiceRepository.UpdateAsync(invoice, cancellationToken);
 

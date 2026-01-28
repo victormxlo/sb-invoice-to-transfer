@@ -2,23 +2,23 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SB.InvoiceToTransfer.Application.UseCases.RunInvoiceScheduler;
+using SB.InvoiceToTransfer.Application.UseCases.RunInvoiceProcessingJob;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Background
 {
-    public sealed class InvoiceSchedulerService : BackgroundService
+    public sealed class InvoiceProcessingJob : BackgroundService
     {
         // Warm-up
         private static readonly TimeSpan InitialDelay = TimeSpan.FromSeconds(5);
 
         private readonly IMediator _mediator;
-        private readonly ILogger<InvoiceSchedulerService> _logger;
+        private readonly ILogger<InvoiceProcessingJob> _logger;
         private readonly TimeSpan _interval;
 
-        public InvoiceSchedulerService(
+        public InvoiceProcessingJob(
             IMediator mediator,
-            IOptions<InvoiceSchedulerOptions> options,
-            ILogger<InvoiceSchedulerService> logger)
+            IOptions<InvoiceProcessingJobOptions> options,
+            ILogger<InvoiceProcessingJob> logger)
         {
             _mediator = mediator;
             _logger = logger;
@@ -27,7 +27,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Background
             if (_interval <= TimeSpan.Zero)
             {
                 throw new ArgumentException(
-                    "InvoiceSchedulerOptions.Interval must be greater than zero");
+                    "InvoiceProcessingJobOptions.Interval must be greater than zero");
             }
         }
 
@@ -48,7 +48,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Background
                         "Triggering invoice scheduler execution");
 
                     await _mediator.Send(
-                        new RunInvoiceSchedulerCommand(),
+                        new RunInvoiceProcessingJobCommand(),
                         stoppingToken);
 
                     _logger.LogInformation(

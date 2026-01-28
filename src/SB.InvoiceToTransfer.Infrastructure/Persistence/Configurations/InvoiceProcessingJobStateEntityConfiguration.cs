@@ -4,11 +4,11 @@ using SB.InvoiceToTransfer.Infrastructure.Persistence.Entities;
 
 namespace SB.InvoiceToTransfer.Infrastructure.Persistence.Configurations
 {
-    public class InvoiceSchedulerStateEntityConfiguration : IEntityTypeConfiguration<InvoiceSchedulerStateEntity>
+    public class InvoiceProcessingJobStateEntityConfiguration : IEntityTypeConfiguration<InvoiceProcessingJobStateEntity>
     {
-        public void Configure(EntityTypeBuilder<InvoiceSchedulerStateEntity> builder)
+        public void Configure(EntityTypeBuilder<InvoiceProcessingJobStateEntity> builder)
         {
-            builder.ToTable("InvoiceSchedulerStates");
+            builder.ToTable("InvoiceProcessingJobStates");
 
             builder.HasKey(x => x.Id);
 
