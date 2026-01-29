@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using SB.InvoiceToTransfer.Infrastructure.Configuration;
 using SB.InvoiceToTransfer.Infrastructure.DependencyInjection;
+using SB.InvoiceToTransfer.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +34,12 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<InvoiceToTransferDbContext>();
+    db.Database.Migrate();
+}
 
 app.MapControllers();
 
