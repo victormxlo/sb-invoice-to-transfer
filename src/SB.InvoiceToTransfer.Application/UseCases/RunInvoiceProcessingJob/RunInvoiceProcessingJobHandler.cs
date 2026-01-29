@@ -28,25 +28,25 @@ namespace SB.InvoiceToTransfer.Application.UseCases.RunInvoiceProcessingJob
 
         public async Task<RunInvoiceProcessingJobResult> Handle(RunInvoiceProcessingJobCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting Invoice Scheduler execution");
+            _logger.LogInformation("Starting invoice processing job execution");
 
             var activeState = await _stateRepository.GetActiveAsync(cancellationToken);
             if (activeState is not null)
             {
                 _logger.LogWarning(
-                    "Invoice Scheduler is already running. StartedAt: {StartedAt}",
+                    "Invoice processing job is already running. StartedAt: {StartedAt}",
                     activeState.StartedAt);
 
-                return RunInvoiceProcessingJobResult.Skipped("Scheduler already running");
+                return RunInvoiceProcessingJobResult.Skipped("Processing job already running");
             }
 
-            var schedulerState = new InvoiceProcessingJobState();
-            await _stateRepository.AddAsync(schedulerState, cancellationToken);
+            var processingJobState = new InvoiceProcessingJobState();
+            await _stateRepository.AddAsync(processingJobState, cancellationToken);
 
             try
             {
                 var invoices = await _invoiceRepository
-                    .GetByStatusAsync(InvoiceStatus.Created, cancellationToken);
+                    .GetByStatusAsync(InvoiceStatus.Processing, cancellationToken);
 
                 _logger.LogInformation(
                     "Found {Count} invoices eligible for processing",
@@ -56,12 +56,32 @@ namespace SB.InvoiceToTransfer.Application.UseCases.RunInvoiceProcessingJob
 
                 foreach (var invoice in invoices)
                 {
+                    if (invoice.TransferId is not null)
+                    {
+                        _logger.LogInformation(
+                            "Invoice {ExternalId} already has transfer. Skipping.",
+                            invoice.ExternalId);
+
+                        continue;
+                    }
+
+                    if (invoice.AmountPaid is null)
+                    {
+                        _logger.LogWarning(
+                            "Invoice {ExternalId} is in processing state but has no AmountPaid. Skipping.",
+                            invoice.ExternalId);
+
+                        continue;
+                    }
+
                     await _mediator.Send(
                         new ProcessInvoiceCredit.ProcessInvoiceCreditCommand
                         {
                             InvoiceExternalId = invoice.ExternalId!,
-                            Amount = (long)Math.Round(invoice.Amount * 100, MidpointRounding.AwayFromZero),
-                            Fee = invoice.Fee > 0 ? (long)Math.Round(invoice.Fee.Value * 100, MidpointRounding.AwayFromZero) : 0
+                            Amount = (long)Math.Round(invoice.AmountPaid.Value * 100, MidpointRounding.AwayFromZero),
+                            Fee = invoice.Fee.HasValue
+                            ? (long)Math.Round(invoice.Fee.Value * 100, MidpointRounding.AwayFromZero)
+                            : 0
                         },
                         cancellationToken);
 
@@ -69,22 +89,22 @@ namespace SB.InvoiceToTransfer.Application.UseCases.RunInvoiceProcessingJob
                 }
 
                 _logger.LogInformation(
-                    "Invoice Scheduler execution finished successfully. Processed: {Count}",
+                    "Invoice processing job execution finished successfully. Processed: {Count}",
                     processedCount);
 
                 return RunInvoiceProcessingJobResult.Ok(processedCount);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while executing Invoice Scheduler");
+                _logger.LogError(ex, "Error while executing invoice processing job");
                 throw;
             }
             finally
             {
-                schedulerState.Finish();
-                await _stateRepository.UpdateAsync(schedulerState, cancellationToken);
+                processingJobState.Finish();
+                await _stateRepository.UpdateAsync(processingJobState, cancellationToken);
 
-                _logger.LogInformation("Invoice Scheduler state finalized");
+                _logger.LogInformation("Invoice processing job state finalized");
             }
         }
     }

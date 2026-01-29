@@ -92,7 +92,7 @@ namespace SB.InvoiceToTransfer.UnitTests.Infrastructure.Background
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Mediator failed"));
 
-            using var cts = new CancellationTokenSource(200);
+            using var cts = new CancellationTokenSource();
 
             var service = new InvoiceProcessingJob(
                 scopeFactory: _scopeFactoryMock.Object,

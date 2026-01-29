@@ -120,9 +120,9 @@ namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.ProcessInvoiceCred
         }
 
         [Fact]
-        public async Task Handle_ShouldIgnore_WhenInvoiceIsNotInCreatedStatus()
+        public async Task Handle_ShouldIgnore_WhenInvoiceIsAlreadyPaid()
         {
-            var invoice = InvoiceTestFactory.Processing();
+            var invoice = InvoiceTestFactory.Paid();
 
             InvoiceRepository
                 .Setup(r => r.GetByExternalIdAsync(invoice.ExternalId, It.IsAny<CancellationToken>()))
@@ -142,7 +142,9 @@ namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.ProcessInvoiceCred
             result.Success.Should().BeFalse();
             result.Reason.Should().Be("Already processed");
 
-            StarkBankClient.VerifyNoOtherCalls();
+            StarkBankClient.Verify(
+                x => x.CreateTransferAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()),
+                Times.Never);
         }
 
         [Fact]

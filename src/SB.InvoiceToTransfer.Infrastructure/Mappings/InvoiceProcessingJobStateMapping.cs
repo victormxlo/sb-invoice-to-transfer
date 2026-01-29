@@ -8,7 +8,8 @@ namespace SB.InvoiceToTransfer.Infrastructure.Mappings
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.NewConfig<InvoiceProcessingJobState, InvoiceProcessingJobStateEntity>();
+            config.NewConfig<InvoiceProcessingJobState, InvoiceProcessingJobStateEntity>()
+                .Map(dest => dest.IsActive, src => src.IsActive);
             config.NewConfig<InvoiceProcessingJobStateEntity, InvoiceProcessingJobState>();
         }
     }

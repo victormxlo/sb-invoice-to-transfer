@@ -69,11 +69,13 @@ namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.RunInvoiceProcessi
         {
             var command = new RunInvoiceProcessingJobCommand();
 
-            var invoiceOne = InvoiceTestFactory.Created();
+            var invoiceOne = InvoiceTestFactory.Processing();
             invoiceOne.AssignExternalId("inv-1");
+            invoiceOne.AssignAmountPaid(10m);
 
-            var invoiceTwo = InvoiceTestFactory.Created();
+            var invoiceTwo = InvoiceTestFactory.Processing();
             invoiceTwo.AssignExternalId("inv-2");
+            invoiceTwo.AssignAmountPaid(20m);
 
             var invoices = new List<Invoice> { invoiceOne, invoiceTwo };
 
@@ -90,29 +92,29 @@ namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.RunInvoiceProcessi
                 .Returns(Task.CompletedTask);
 
             _invoiceRepositoryMock
-                .Setup(r => r.GetByStatusAsync(InvoiceStatus.Created, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByStatusAsync(InvoiceStatus.Processing, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(invoices);
+
+            _mediatorMock
+                .Setup(m => m.Send(
+                    It.IsAny<ProcessInvoiceCreditCommand>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(ProcessInvoiceCreditResult.Ok("tx-1"));
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             result.Executed.Should().BeTrue();
             result.ProcessedInvoices.Should().Be(2);
 
-            _invoiceRepositoryMock.Verify(
-                r => r.GetByStatusAsync(InvoiceStatus.Created, It.IsAny<CancellationToken>()),
-                Times.Once);
-
             _mediatorMock.Verify(
-                m => m.Send<ProcessInvoiceCreditResult>(
-                    It.Is<ProcessInvoiceCreditCommand>(c =>
-                        c.InvoiceExternalId == "inv-1"),
+                m => m.Send(
+                    It.Is<ProcessInvoiceCreditCommand>(c => c.InvoiceExternalId == "inv-1"),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
 
             _mediatorMock.Verify(
-                m => m.Send<ProcessInvoiceCreditResult>(
-                    It.Is<ProcessInvoiceCreditCommand>(c =>
-                        c.InvoiceExternalId == "inv-2"),
+                m => m.Send(
+                    It.Is<ProcessInvoiceCreditCommand>(c => c.InvoiceExternalId == "inv-2"),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
 
@@ -146,7 +148,7 @@ namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.RunInvoiceProcessi
                 .Returns(Task.CompletedTask);
 
             _invoiceRepositoryMock
-                .Setup(r => r.GetByStatusAsync(InvoiceStatus.Created, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByStatusAsync(InvoiceStatus.Processing, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new InvalidOperationException("Database failure"));
 
             Func<Task> act = async () =>
@@ -176,7 +178,7 @@ namespace SB.InvoiceToTransfer.UnitTests.Application.UseCases.RunInvoiceProcessi
                 .ReturnsAsync((InvoiceProcessingJobState?)null);
 
             _invoiceRepositoryMock
-                .Setup(r => r.GetByStatusAsync(InvoiceStatus.Created, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByStatusAsync(InvoiceStatus.Processing, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<Invoice>());
 
             var result = await _handler.Handle(command, CancellationToken.None);

@@ -17,5 +17,8 @@
             StartedAt = startedAt;
             IsActive = isActive;
         }
+
+        public void SetIsActive(bool isActive)
+            => IsActive = isActive;
     }
 }

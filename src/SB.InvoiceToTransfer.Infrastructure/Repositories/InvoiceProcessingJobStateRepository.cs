@@ -44,11 +44,9 @@ namespace SB.InvoiceToTransfer.Infrastructure.Repositories
             CancellationToken cancellationToken)
         {
             var entity = await _context.InvoiceProcessingJobStates
-                .FirstAsync(
-                    x => x.Id == state.Id,
-                    cancellationToken);
+                .FirstAsync(x => x.Id == state.Id, cancellationToken);
 
-            state.Adapt(entity);
+            entity.SetIsActive(state.IsActive);
 
             await _context.SaveChangesAsync(cancellationToken);
         }

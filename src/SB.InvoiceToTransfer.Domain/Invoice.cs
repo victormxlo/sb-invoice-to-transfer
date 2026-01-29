@@ -39,12 +39,19 @@ namespace SB.InvoiceToTransfer.Domain
         public void AssignExternalId(string externalId)
             => ExternalId = externalId;
 
+        public void AssignFee(decimal fee)
+            => Fee = fee;
+
+        public void AssignAmountPaid(decimal amountPaid)
+            => AmountPaid = amountPaid;
+
         public void MarkAsProcessing()
         {
             if (Status != InvoiceStatus.Created)
                 throw new InvalidOperationException("Invoice cannot be processed.");
 
             Status = InvoiceStatus.Processing;
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public void MarkAsPaid(decimal amountPaid, decimal fee, string transferId)

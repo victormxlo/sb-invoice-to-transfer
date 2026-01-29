@@ -30,27 +30,30 @@ namespace SB.InvoiceToTransfer.Application.UseCases.ProcessInvoiceCredit
                 "InvoiceExternalId: {ExternalId}",
                 request.InvoiceExternalId))
             {
-                _logger.LogInformation("Processing invoice credit webhook");
+                _logger.LogInformation(
+                    "Processing invoice {InvoiceExternalId} credit webhook", request.InvoiceExternalId);
 
                 var invoice = await _invoiceRepository
                     .GetByExternalIdAsync(request.InvoiceExternalId, cancellationToken);
 
                 if (invoice is null)
                 {
-                    _logger.LogWarning("Invoice not found");
+                    _logger.LogWarning("Invoice {InvoiceExternalId} not found", request.InvoiceExternalId);
                     return ProcessInvoiceCreditResult.NotProcessed("Invoice not found");
                 }
 
                 if (invoice.Status is InvoiceStatus.Paid)
                 {
-                    _logger.LogInformation("Invoice already processed. Ignoring webhook.");
+                    _logger.LogInformation(
+                        "Invoice {InvoiceExternalId} already processed. Ignoring webhook.", invoice.ExternalId);
                     return ProcessInvoiceCreditResult.AlreadyProcessed();
                 }
 
                 if (request.Amount <= 0 || request.Fee < 0)
                 {
                     _logger.LogError(
-                        "Invalid values. Amount: {Amount}, Fee: {Fee}",
+                        "Invalid values for the invoice {InvoiceExternalId}. Amount: {Amount}, Fee: {Fee}",
+                        invoice.ExternalId,
                         request.Amount,
                         request.Fee);
 
@@ -68,14 +71,18 @@ namespace SB.InvoiceToTransfer.Application.UseCases.ProcessInvoiceCredit
                     return ProcessInvoiceCreditResult.NotProcessed("Invalid net amount");
                 }
 
-                if (invoice.Status != InvoiceStatus.Created)
+                if (invoice.Status == InvoiceStatus.Created)
                 {
-                    _logger.LogInformation("Invoice already being processed");
-                    return ProcessInvoiceCreditResult.AlreadyProcessed();
+                    invoice.AssignAmountPaid(request.Amount / 100m);
+                    invoice.AssignFee(request.Fee / 100m);
+
+                    invoice.MarkAsProcessing();
+                    await _invoiceRepository.UpdateAsync(invoice, cancellationToken);
                 }
 
-                invoice.MarkAsProcessing();
-                await _invoiceRepository.UpdateAsync(invoice, cancellationToken);
+                _logger.LogInformation(
+                    "Creating transfer for invoice {InvoiceExternalId}",
+                    invoice.ExternalId);
 
                 var transferResult = await _starkBankClient
                     .CreateTransferAsync(netAmount, cancellationToken);
@@ -83,20 +90,25 @@ namespace SB.InvoiceToTransfer.Application.UseCases.ProcessInvoiceCredit
                 if (!transferResult.Success)
                 {
                     _logger.LogError(
-                        "Transfer failed. ErrorCode: {ErrorCode}, Message: {Message}",
+                        "Invoice {InvoiceExternalId} transfer failed. ErrorCode: {ErrorCode}, Message: {Message}",
+                        invoice.ExternalId,
                         transferResult.ErrorCode,
                         transferResult.ErrorMessage);
 
                     return ProcessInvoiceCreditResult.NotProcessed("Transfer failed");
                 }
 
-                invoice.MarkAsPaid(netAmount, request.Fee, transferResult.Data!);
+                invoice.MarkAsPaid(
+                    amountPaid: netAmount / 100m,
+                    fee: request.Fee / 100m,
+                    transferId: transferResult.Data!
+                );
 
                 await _invoiceRepository.UpdateAsync(invoice, cancellationToken);
 
                 _logger.LogInformation(
-                    "Invoice processed successfully. TransferId: {TransferId}",
-                    transferResult.Data);
+                    "Invoice {InvoiceExternalId} processed successfully. TransferId: {TransferId}",
+                    invoice.ExternalId, transferResult.Data);
 
                 return ProcessInvoiceCreditResult.Ok(transferResult.Data!);
             }

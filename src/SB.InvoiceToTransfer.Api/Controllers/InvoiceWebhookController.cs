@@ -30,7 +30,10 @@ public sealed class InvoiceWebhookController : ControllerBase
         }
 
         if (request.Event != "invoice.paid")
+        {
+            _logger.LogWarning("Invalid event type received for invoice {InvoiceId} credit processing: {Event} ", request.Data.Invoice.Id, request.Event);
             return Ok();
+        }
 
         var invoice = request.Data.Invoice;
 
