@@ -8,6 +8,7 @@ COPY src/SB.InvoiceToTransfer.Api/SB.InvoiceToTransfer.Api.csproj src/SB.Invoice
 COPY src/SB.InvoiceToTransfer.Application/SB.InvoiceToTransfer.Application.csproj src/SB.InvoiceToTransfer.Application/
 COPY src/SB.InvoiceToTransfer.Domain/SB.InvoiceToTransfer.Domain.csproj src/SB.InvoiceToTransfer.Domain/
 COPY src/SB.InvoiceToTransfer.Infrastructure/SB.InvoiceToTransfer.Infrastructure.csproj src/SB.InvoiceToTransfer.Infrastructure/
+COPY tests/SB.InvoiceToTransfer.UnitTests/SB.InvoiceToTransfer.UnitTests.csproj tests/SB.InvoiceToTransfer.UnitTests/
 
 RUN dotnet restore
 
