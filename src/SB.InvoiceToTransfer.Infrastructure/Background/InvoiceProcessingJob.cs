@@ -10,7 +10,7 @@ namespace SB.InvoiceToTransfer.Infrastructure.Background
     public sealed class InvoiceProcessingJob : BackgroundService
     {
         // Warm-up
-        private static readonly TimeSpan InitialDelay = TimeSpan.FromSeconds(60);
+        private static readonly TimeSpan InitialDelay = TimeSpan.FromSeconds(30);
 
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<InvoiceProcessingJob> _logger;
