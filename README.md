@@ -152,18 +152,19 @@ export SB_PROJECT_ID="..."
 export SB_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY----- ..."
 
 dotnet run
+```
 
 ### Run with Docker
+```bash
+docker build -t sb-invoice-to-transfer .
 
-    docker build -t sb-invoice-to-transfer .
-
-    docker run -p 8080:8080 \
-      -e SB_DB_CONNECTION="/app/data/invoice_to_transfer.db" \
-      -e SB_ENVIRONMENT="sandbox" \
-      -e SB_PROJECT_ID="..." \
-      -e SB_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY----- ..." \
-      sb-invoice-to-transfer
-
+docker run -p 8080:8080 \
+  -e SB_DB_CONNECTION="/app/data/invoice_to_transfer.db" \
+  -e SB_ENVIRONMENT="sandbox" \
+  -e SB_PROJECT_ID="..." \
+  -e SB_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY----- ..." \
+  sb-invoice-to-transfer
+```
 ---
 
 ## API Endpoints
